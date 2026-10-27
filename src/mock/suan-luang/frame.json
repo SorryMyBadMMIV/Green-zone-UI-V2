@@ -1,0 +1,29 @@
+{
+  "id": "theosmain",
+  "crs": "EPSG:32647",
+  "extent": {
+    "west": 671762.0,
+    "east": 679762.0,
+    "south": 1516855.0,
+    "north": 1520855.0
+  },
+  "corners": {
+    "topLeft": [
+      13.7519079,
+      100.5886532
+    ],
+    "topRight": [
+      13.7514201,
+      100.6626249
+    ],
+    "bottomLeft": [
+      13.7157531,
+      100.5884097
+    ],
+    "bottomRight": [
+      13.7152666,
+      100.6623701
+    ]
+  },
+  "note": "Extent measured from the backend parks_marked.png axes (about +-10 m) until the GeoTIFF arrives."
+}

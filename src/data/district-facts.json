@@ -1,0 +1,402 @@
+[
+ {
+  "districtTh": "คลองเตย",
+  "population": 88304,
+  "greenM2": 1151880.84,
+  "greenPerPersonM2": 13.04,
+  "accessibleM2": 364800.0,
+  "accessiblePerPersonM2": 4.13
+ },
+ {
+  "districtTh": "คลองสาน",
+  "population": 61832,
+  "greenM2": 251340.0,
+  "greenPerPersonM2": 4.06,
+  "accessibleM2": 58728.0,
+  "accessiblePerPersonM2": 0.95
+ },
+ {
+  "districtTh": "คลองสามวา",
+  "population": 215427,
+  "greenM2": 966238.2,
+  "greenPerPersonM2": 4.49,
+  "accessibleM2": 246452.8,
+  "accessiblePerPersonM2": 1.14
+ },
+ {
+  "districtTh": "คันนายาว",
+  "population": 93302,
+  "greenM2": 3264552.1,
+  "greenPerPersonM2": 34.99,
+  "accessibleM2": 38732.3,
+  "accessiblePerPersonM2": 0.42
+ },
+ {
+  "districtTh": "จตุจักร",
+  "population": 154513,
+  "greenM2": 2169260.56,
+  "greenPerPersonM2": 14.04,
+  "accessibleM2": 1276611.48,
+  "accessiblePerPersonM2": 8.26
+ },
+ {
+  "districtTh": "จอมทอง",
+  "population": 137869,
+  "greenM2": 474610.48,
+  "greenPerPersonM2": 3.44,
+  "accessibleM2": 15292.0,
+  "accessiblePerPersonM2": 0.11
+ },
+ {
+  "districtTh": "ดอนเมือง",
+  "population": 165594,
+  "greenM2": 727296.12,
+  "greenPerPersonM2": 4.39,
+  "accessibleM2": 273408.0,
+  "accessiblePerPersonM2": 1.65
+ },
+ {
+  "districtTh": "ดินแดง",
+  "population": 109047,
+  "greenM2": 218350.76,
+  "greenPerPersonM2": 2.0,
+  "accessibleM2": 34426.8,
+  "accessiblePerPersonM2": 0.32
+ },
+ {
+  "districtTh": "ดุสิต",
+  "population": 72788,
+  "greenM2": 1151908.0,
+  "greenPerPersonM2": 15.83,
+  "accessibleM2": 27760.0,
+  "accessiblePerPersonM2": 0.38
+ },
+ {
+  "districtTh": "ตลิ่งชัน",
+  "population": 100433,
+  "greenM2": 1391024.69,
+  "greenPerPersonM2": 13.85,
+  "accessibleM2": 37781.6,
+  "accessiblePerPersonM2": 0.38
+ },
+ {
+  "districtTh": "ทวีวัฒนา",
+  "population": 80816,
+  "greenM2": 1821884.5,
+  "greenPerPersonM2": 22.54,
+  "accessibleM2": 372920.6,
+  "accessiblePerPersonM2": 4.61
+ },
+ {
+  "districtTh": "ทุ่งครุ",
+  "population": 123887,
+  "greenM2": 589643.0,
+  "greenPerPersonM2": 4.76,
+  "accessibleM2": 101280.0,
+  "accessiblePerPersonM2": 0.82
+ },
+ {
+  "districtTh": "ธนบุรี",
+  "population": 95666,
+  "greenM2": 273958.0,
+  "greenPerPersonM2": 2.86,
+  "accessibleM2": 25640.0,
+  "accessiblePerPersonM2": 0.27
+ },
+ {
+  "districtTh": "บางกอกน้อย",
+  "population": 51091,
+  "greenM2": 271907.24,
+  "greenPerPersonM2": 5.32,
+  "accessibleM2": 40174.0,
+  "accessiblePerPersonM2": 0.79
+ },
+ {
+  "districtTh": "บางกอกใหญ่",
+  "population": 58804,
+  "greenM2": 215236.0,
+  "greenPerPersonM2": 3.66,
+  "accessibleM2": 8424.0,
+  "accessiblePerPersonM2": 0.14
+ },
+ {
+  "districtTh": "บางกะปิ",
+  "population": 140901,
+  "greenM2": 856722.87,
+  "greenPerPersonM2": 6.08,
+  "accessibleM2": 183736.0,
+  "accessiblePerPersonM2": 1.3
+ },
+ {
+  "districtTh": "บางขุนเทียน",
+  "population": 185160,
+  "greenM2": 3683241.33,
+  "greenPerPersonM2": 19.89,
+  "accessibleM2": 547056.0,
+  "accessiblePerPersonM2": 2.95
+ },
+ {
+  "districtTh": "บางเขน",
+  "population": 183306,
+  "greenM2": 1050650.76,
+  "greenPerPersonM2": 5.73,
+  "accessibleM2": 166756.0,
+  "accessiblePerPersonM2": 0.91
+ },
+ {
+  "districtTh": "บางคอแหลม",
+  "population": 74846,
+  "greenM2": 353019.44,
+  "greenPerPersonM2": 4.72,
+  "accessibleM2": 73803.52,
+  "accessiblePerPersonM2": 0.99
+ },
+ {
+  "districtTh": "บางแค",
+  "population": 191997,
+  "greenM2": 1014357.6,
+  "greenPerPersonM2": 5.28,
+  "accessibleM2": 134111.0,
+  "accessiblePerPersonM2": 0.7
+ },
+ {
+  "districtTh": "บางซื่อ",
+  "population": 116600,
+  "greenM2": 283456.0,
+  "greenPerPersonM2": 2.43,
+  "accessibleM2": 55284.0,
+  "accessiblePerPersonM2": 0.47
+ },
+ {
+  "districtTh": "บางนา",
+  "population": 84574,
+  "greenM2": 376844.0,
+  "greenPerPersonM2": 4.46,
+  "accessibleM2": 27240.0,
+  "accessiblePerPersonM2": 0.32
+ },
+ {
+  "districtTh": "บางบอน",
+  "population": 98160,
+  "greenM2": 977908.34,
+  "greenPerPersonM2": 9.96,
+  "accessibleM2": 171416.0,
+  "accessiblePerPersonM2": 1.75
+ },
+ {
+  "districtTh": "บางพลัด",
+  "population": 85791,
+  "greenM2": 277109.23,
+  "greenPerPersonM2": 3.23,
+  "accessibleM2": 43972.0,
+  "accessiblePerPersonM2": 0.51
+ },
+ {
+  "districtTh": "บางรัก",
+  "population": 40549,
+  "greenM2": 170258.28,
+  "greenPerPersonM2": 4.2,
+  "accessibleM2": 2450.8,
+  "accessiblePerPersonM2": 0.06
+ },
+ {
+  "districtTh": "บึงกุ่ม",
+  "population": 134892,
+  "greenM2": 843673.2,
+  "greenPerPersonM2": 6.25,
+  "accessibleM2": 454935.2,
+  "accessiblePerPersonM2": 3.37
+ },
+ {
+  "districtTh": "ปทุมวัน",
+  "population": 38560,
+  "greenM2": 945122.6,
+  "greenPerPersonM2": 24.51,
+  "accessibleM2": 729460.0,
+  "accessiblePerPersonM2": 18.92
+ },
+ {
+  "districtTh": "ประเวศ",
+  "population": 183562,
+  "greenM2": 3096657.79,
+  "greenPerPersonM2": 16.87,
+  "accessibleM2": 2082306.76,
+  "accessiblePerPersonM2": 11.34
+ },
+ {
+  "districtTh": "ป้อมปราบศัตรูพ่าย",
+  "population": 35900,
+  "greenM2": 256540.64,
+  "greenPerPersonM2": 7.15,
+  "accessibleM2": 80.0,
+  "accessiblePerPersonM2": 0.002
+ },
+ {
+  "districtTh": "พญาไท",
+  "population": 62275,
+  "greenM2": 206184.04,
+  "greenPerPersonM2": 3.31,
+  "accessibleM2": 30685.0,
+  "accessiblePerPersonM2": 0.49
+ },
+ {
+  "districtTh": "พระโขนง",
+  "population": 84014,
+  "greenM2": 269578.35,
+  "greenPerPersonM2": 3.21,
+  "accessibleM2": 14380.4,
+  "accessiblePerPersonM2": 0.17
+ },
+ {
+  "districtTh": "พระนคร",
+  "population": 38408,
+  "greenM2": 626671.52,
+  "greenPerPersonM2": 16.32,
+  "accessibleM2": 270655.6,
+  "accessiblePerPersonM2": 7.05
+ },
+ {
+  "districtTh": "ภาษีเจริญ",
+  "population": 120980,
+  "greenM2": 384893.28,
+  "greenPerPersonM2": 3.18,
+  "accessibleM2": 1600.0,
+  "accessiblePerPersonM2": 0.01
+ },
+ {
+  "districtTh": "มีนบุรี",
+  "population": 140449,
+  "greenM2": 970293.52,
+  "greenPerPersonM2": 6.91,
+  "accessibleM2": 243046.8,
+  "accessiblePerPersonM2": 1.73
+ },
+ {
+  "districtTh": "ยานนาวา",
+  "population": 72413,
+  "greenM2": 485549.0,
+  "greenPerPersonM2": 6.71,
+  "accessibleM2": 35010.25,
+  "accessiblePerPersonM2": 0.48
+ },
+ {
+  "districtTh": "ราชเทวี",
+  "population": 61377,
+  "greenM2": 699452.12,
+  "greenPerPersonM2": 11.4,
+  "accessibleM2": 103376.0,
+  "accessiblePerPersonM2": 1.68
+ },
+ {
+  "districtTh": "ราษฎร์บูรณะ",
+  "population": 74092,
+  "greenM2": 291218.92,
+  "greenPerPersonM2": 3.93,
+  "accessibleM2": 49593.0,
+  "accessiblePerPersonM2": 0.67
+ },
+ {
+  "districtTh": "ลาดกระบัง",
+  "population": 182191,
+  "greenM2": 737781.32,
+  "greenPerPersonM2": 4.05,
+  "accessibleM2": 230796.8,
+  "accessiblePerPersonM2": 1.27
+ },
+ {
+  "districtTh": "ลาดพร้าว",
+  "population": 110660,
+  "greenM2": 660654.6,
+  "greenPerPersonM2": 5.97,
+  "accessibleM2": 54536.48,
+  "accessiblePerPersonM2": 0.49
+ },
+ {
+  "districtTh": "วังทองหลาง",
+  "population": 102281,
+  "greenM2": 181937.7,
+  "greenPerPersonM2": 1.78,
+  "accessibleM2": 7437.72,
+  "accessiblePerPersonM2": 0.07
+ },
+ {
+  "districtTh": "วัฒนา",
+  "population": 79736,
+  "greenM2": 147557.76,
+  "greenPerPersonM2": 1.85,
+  "accessibleM2": 9900.0,
+  "accessiblePerPersonM2": 0.12
+ },
+ {
+  "districtTh": "สวนหลวง",
+  "population": 123291,
+  "greenM2": 750818.4,
+  "greenPerPersonM2": 6.09,
+  "accessibleM2": 208000.0,
+  "accessiblePerPersonM2": 1.69
+ },
+ {
+  "districtTh": "สะพานสูง",
+  "population": 97812,
+  "greenM2": 546387.85,
+  "greenPerPersonM2": 5.59,
+  "accessibleM2": 18724.0,
+  "accessiblePerPersonM2": 0.19
+ },
+ {
+  "districtTh": "สัมพันธวงศ์",
+  "population": 18329,
+  "greenM2": 140046.34,
+  "greenPerPersonM2": 7.64,
+  "accessibleM2": 1918.28,
+  "accessiblePerPersonM2": 0.1
+ },
+ {
+  "districtTh": "สาทร",
+  "population": 69219,
+  "greenM2": 335893.56,
+  "greenPerPersonM2": 4.85,
+  "accessibleM2": 197628.0,
+  "accessiblePerPersonM2": 2.86
+ },
+ {
+  "districtTh": "สายไหม",
+  "population": 212912,
+  "greenM2": 1153296.3,
+  "greenPerPersonM2": 5.42,
+  "accessibleM2": 82519.04,
+  "accessiblePerPersonM2": 0.39
+ },
+ {
+  "districtTh": "หนองแขม",
+  "population": 154690,
+  "greenM2": 771567.76,
+  "greenPerPersonM2": 4.99,
+  "accessibleM2": 16093.16,
+  "accessiblePerPersonM2": 0.1
+ },
+ {
+  "districtTh": "หนองจอก",
+  "population": 187987,
+  "greenM2": 1351805.48,
+  "greenPerPersonM2": 7.19,
+  "accessibleM2": 203800.0,
+  "accessiblePerPersonM2": 1.08
+ },
+ {
+  "districtTh": "หลักสี่",
+  "population": 97352,
+  "greenM2": 1799057.28,
+  "greenPerPersonM2": 18.48,
+  "accessibleM2": 41678.4,
+  "accessiblePerPersonM2": 0.43
+ },
+ {
+  "districtTh": "ห้วยขวาง",
+  "population": 84038,
+  "greenM2": 471358.75,
+  "greenPerPersonM2": 5.61,
+  "accessibleM2": 51868.8,
+  "accessiblePerPersonM2": 0.62
+ }
+]
