@@ -1,6 +1,6 @@
-# Green Lantern frontend
+# Green Zone frontend
 
-An interactive map for **Green Lantern** (GeoHackathon 2026, GISTDA): urban green space planning with THEOS-2, aligned with **Green Bangkok 2030** and the **15-minute park** policy. It covers two districts: **Suan Luang (สวนหลวง)**, where the backend has real THEOS-2 results, and **Don Mueang (ดอนเมือง)**.
+An interactive map for **Green Zone** (GeoHackathon 2026, GISTDA): urban green space planning with THEOS-2, aligned with **Green Bangkok 2030** and the **15-minute park** policy. It covers two districts: **Suan Luang (สวนหลวง)**, where the backend has real THEOS-2 results, and **Don Mueang (ดอนเมือง)**.
 
 - **District drop-down:** switch the whole app between Suan Luang and Don Mueang.
 - **Parks and their reach:** every park from the BMA / Rocket Media Lab list, with a circle by size: **S** up to 16,000 m² reaches 500 m, **M** up to 80,000 m² reaches 1 km, **L** up to 160,000 m² reaches 3 km, **XL** reaches 5 km.
