@@ -16,11 +16,19 @@ It writes `src/data/parks.json` and `src/data/district-facts.json`. It merges a 
 python -I -B make-heatmaps.py <path to the Green-zone-v3 backend folder> <path to the project>
 ```
 
-It uses the backend's own `greensight.heatmap.make_heatmap`. The `-B` flag stops Python from writing cache files into the backend folder. It writes:
+It uses the backend's own `greensight.heatmap.make_heatmap` and the newest `Final_Results/Theosmain/run_*` folder. The `-B` flag stops Python from writing cache files into the backend folder. It writes:
 - `src/mock/suan-luang/green.png`, `heatmap.png` and `frame.json`
 - `src/mock/don-mueang/heatmap.png`
 
-**Before running it, check the Suan Luang image extent.** The extent at the top of the script was measured from the backend's chart. Replace it with the `.tif` bounds when the teammate sends the GeoTIFF.
+The Suan Luang image's position is fitted, because the GeoTIFF is not in the backend repo: every GA site is the centre of a green patch and carries its UTM coordinates, so matching the sites to the patches in `green_preview.png` gives the image's corner to about 1 m. The script prints the fit and stops if it is poor.
+
+## 2b. The backend's results (Python, no extra packages)
+
+```bash
+python -I -B copy-backend-results.py <path to the Green-zone-v3 backend folder> <path to the project>
+```
+
+It copies the newest run's `summary.json`, park checks, GA sites and green groups into `src/mock/suan-luang/`.
 
 ## 3. Map data (Node: osmtogeojson + turf, in a separate folder)
 
@@ -32,7 +40,7 @@ npm init -y && npm install osmtogeojson@3.0.0-beta.5 @turf/turf@7
 # Suan Luang
 node fetch-district.mjs --name "Suan Luang District, Bangkok" --out suan-luang-district-raw.json
 node fetch-frame-osm.mjs --bbox 100.5834,13.7103,100.6676,13.7569 --tiles 6x3 --out suan-luang-frame-raw.json
-node make-suan-luang-data.mjs <path to the project> <path to the backend folder>    # after step 2
+node make-suan-luang-data.mjs <path to the project>    # after step 2
 
 # Don Mueang (example data)
 node fetch-district.mjs --relation 1639287 --out district-raw.json
@@ -41,6 +49,6 @@ node make-don-mueang-data.mjs <path to the project>
 ```
 
 **What's real and what's simulated:**
-- **Real:** district boundaries, land use, buildings, roads, runways and canals come from OpenStreetMap (© OpenStreetMap contributors, ODbL). Suan Luang's green and park checks come from the backend's THEOS-2 results.
+- **Real:** district boundaries, land use, buildings, roads, runways and canals come from OpenStreetMap (© OpenStreetMap contributors, ODbL). Suan Luang's green, park checks, GA sites and green groups come from the backend's THEOS-2 results.
 - **Example data:** Suan Luang's abandoned plots are OpenStreetMap land-use plots (scrub, meadow, construction, brownfield). Don Mueang's NDVI, temperatures, population and fitness are simulated.
 - **Repeatable:** the random numbers are seeded, so the same downloads always give the same files.

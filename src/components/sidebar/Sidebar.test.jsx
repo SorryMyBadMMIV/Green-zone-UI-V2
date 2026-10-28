@@ -98,6 +98,24 @@ const parkChecks = {
   features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [100.6408915, 13.7350756] }, properties: { name: 'สวนศรีพัฒน์ภิรมย์', areaM2: 3600, sizeClass: 'S', status: 'green_detected', greenM2: 2000 } }],
 };
 
+// The backend's GA sites (two in one 1 km square, one in another) and green groups, as the loader returns them.
+const gaPoint = (zone, rank, areaM2, distNearestOfficialM) => ({
+  type: 'Feature',
+  geometry: { type: 'Point', coordinates: [100.6, 13.73] },
+  properties: { id: `${zone}-${rank}`, zone, rank, areaM2, distNearestOfficialM, zoneFitness: 1.2, zoneKMax: 2 },
+});
+const gaSites = { type: 'FeatureCollection', features: [gaPoint('r0_c0', 1, 25991.5, 2287.7), gaPoint('r0_c0', 2, 7534.5, 2437.2), gaPoint('r3_c2', 1, 5000, 650)] };
+const groupPoint = (id, kind, greenM2InGroup, patchesInGroup, radiusM) => ({
+  type: 'Feature',
+  geometry: { type: 'Point', coordinates: [100.63, 13.72] },
+  properties: { id, kind, radiusM, patchesInGroup, patchesInCircle: patchesInGroup + 2, greenM2InGroup, greenM2InCircle: greenM2InGroup + 100 },
+});
+// 1,000,000 + 500,000 + 298,638 m² = 80% of the 2,248,297.5 m² of green in the image.
+const greenGroups = {
+  type: 'FeatureCollection',
+  features: [groupPoint('1', 'group', 1000000, 34, 381), groupPoint('2', 'group', 500000, 12, 250), groupPoint('171', 'isolated', 298638, 1, 192.3)],
+};
+
 const donMueangAnalysis = analyseDistrict({ focus: focusOf(donMueang), parks, plots: grey });
 const suanLuangAnalysis = analyseDistrict({ focus: focusOf(suanLuang), parks, plots: suanLuangGrey });
 
@@ -107,6 +125,8 @@ const renderSuanLuang = (props = {}) =>
       district={suanLuang}
       analysis={suanLuangAnalysis}
       parkChecks={parkChecks}
+      gaSites={gaSites}
+      greenGroups={greenGroups}
       status="ready"
       green={null}
       grey={suanLuangGrey}
@@ -230,7 +250,7 @@ describe('Sidebar', () => {
     renderSuanLuang();
     expect(screen.getByRole('heading', { name: 'Suan Luang overview' })).toBeTruthy();
     expect(screen.getByText('5%')).toBeTruthy();
-    expect(screen.getByText('1.754 km²')).toBeTruthy();
+    expect(screen.getByText('2.248 km²')).toBeTruthy();
     expect(screen.getByText('123,291')).toBeTruthy();
     expect(screen.getByText('S 2 · M 0 · L 0 · XL 0')).toBeTruthy();
     expect(screen.getByText(/of Suan Luang is within 400 m of a park/)).toBeTruthy();
@@ -255,6 +275,37 @@ describe('Sidebar', () => {
     expect(screen.getByText('Very good for planting')).toBeTruthy();
     expect(screen.getByText('★ Recommended')).toBeTruthy();
     expect(screen.queryByText('Why this site?')).toBeNull();
+  });
+
+  it("shows the backend's GA park sites and green groups on the Suan Luang overview", () => {
+    renderSuanLuang();
+    expect(screen.getByText('3 GA park sites')).toBeTruthy();
+    expect(screen.getByText(/in 2 squares of 1 km/)).toBeTruthy();
+    expect(screen.getByText(/Not verified public land/)).toBeTruthy();
+    expect(screen.getByText('2 groups · 1 isolated')).toBeTruthy();
+    expect(screen.getByText('80% of the green is inside a circle')).toBeTruthy();
+  });
+
+  it('shows a GA park site with its area, its rank in its 1 km square and the nearest official park', () => {
+    renderSuanLuang({ selected: { kind: 'ga', id: 'r0_c0-1' } });
+    expect(screen.getByRole('heading', { name: 'GA park site' })).toBeTruthy();
+    expect(screen.getByText('Candidate · not verified public land')).toBeTruthy();
+    expect(screen.getByText('25,992 m²')).toBeTruthy();
+    expect(screen.getByText('1 of 2')).toBeTruthy();
+    expect(screen.getByText('2.3 km')).toBeTruthy();
+  });
+
+  it('shows a green group with its green area, patches and circle size', () => {
+    renderSuanLuang({ selected: { kind: 'group', id: '1' } });
+    expect(screen.getByRole('heading', { name: 'Green group 1' })).toBeTruthy();
+    expect(screen.getByText('1,000,000 m²')).toBeTruthy();
+    expect(screen.getByText('34')).toBeTruthy();
+    expect(screen.getByText('381 m')).toBeTruthy();
+  });
+
+  it('calls a lone circle an isolated green patch', () => {
+    renderSuanLuang({ selected: { kind: 'group', id: '171' } });
+    expect(screen.getByRole('heading', { name: 'Isolated green 171' })).toBeTruthy();
   });
 
   it('minimizes, and when minimized shows only the button that opens it again', () => {

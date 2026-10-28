@@ -7,7 +7,8 @@ import { DEFAULT_RADIUS_KM } from '../lib/constants.js';
 const MOCK_FILES = import.meta.glob('../mock/**/*.{json,geojson}', { query: '?url', import: 'default', eager: true });
 
 /**
- * Where one piece of a district's data lives ('grid' | 'green-zones' | 'abandoned' | 'park-checks'): the backend
+ * Where one piece of a district's data lives ('grid' | 'green-zones' | 'abandoned' | 'park-checks' | 'ga-sites' |
+ * 'green-groups'): the backend
  * when VITE_API_URL is set, otherwise the example file src/mock/<district>/<name>.json or .geojson.
  */
 export function districtDataUrl(districtId, name, baseUrl = API_URL) {
@@ -141,17 +142,83 @@ export function normalizeChecks(json) {
   return { type: 'FeatureCollection', features };
 }
 
+const isPoint = (geometry) => geometry?.type === 'Point' && Array.isArray(geometry.coordinates);
+
+function pointCollection(json, what) {
+  if (json?.type !== 'FeatureCollection' || !Array.isArray(json.features)) {
+    throw new Error(`The ${what} data is not a GeoJSON FeatureCollection.`);
+  }
+  return json.features;
+}
+
 /**
- * Loads everything a district has: abandoned plots always; green zones, the NDVI grid and park checks when the
- * district provides them (district.data). Throws on network errors, non-2xx responses and bad data.
+ * The backend's GA-ranked candidate park sites (ga_parks.geojson, sent as is): one Point per site with its 1 km square
+ * (`zone`), its rank inside the square, its area and its distance to the nearest official park.
+ */
+export function normalizeGaSites(json) {
+  const features = [];
+  for (const f of pointCollection(json, 'GA park site')) {
+    const p = f?.properties ?? {};
+    if (!isPoint(f?.geometry) || !str(p.zone) || num(p.rank) == null) {
+      console.warn('Skipping a GA park site without a point, a 1 km square or a rank', f);
+      continue;
+    }
+    features.push({
+      type: 'Feature',
+      geometry: f.geometry,
+      properties: {
+        id: `${p.zone}-${p.rank}`,
+        zone: p.zone,
+        rank: p.rank,
+        areaM2: num(p.area_m2),
+        distNearestOfficialM: num(p.dist_nearest_official_m),
+        zoneFitness: num(p.zone_fitness),
+        zoneKMax: num(p.zone_k_max),
+      },
+    });
+  }
+  return { type: 'FeatureCollection', features };
+}
+
+/**
+ * The backend's green groups (green_groups.geojson, sent as is). Only the circle centres are kept: the map draws each
+ * circle from its centre and radius. Noise the backend suppressed is left out.
+ */
+export function normalizeGreenGroups(json) {
+  const features = [];
+  for (const f of pointCollection(json, 'green group')) {
+    const p = f?.properties ?? {};
+    if (!isPoint(f?.geometry) || p.noise_suppressed === true || !(num(p.radius_m) > 0) || p.cluster_id == null) continue;
+    features.push({
+      type: 'Feature',
+      geometry: f.geometry,
+      properties: {
+        id: String(p.cluster_id),
+        kind: p.kind === 'isolated' ? 'isolated' : 'group',
+        radiusM: p.radius_m,
+        patchesInGroup: num(p.patches_in_group),
+        patchesInCircle: num(p.patches_in_circle),
+        greenM2InGroup: num(p.green_m2_in_group),
+        greenM2InCircle: num(p.green_m2_in_circle),
+      },
+    });
+  }
+  return { type: 'FeatureCollection', features };
+}
+
+/**
+ * Loads everything a district has: abandoned plots always; green zones, the NDVI grid, park checks, GA sites and green
+ * groups when the district provides them (district.data). Throws on network errors, non-2xx responses and bad data.
  */
 export async function fetchDistrictData(district, { baseUrl = API_URL, signal } = {}) {
   const load = async (name) => getJson(districtDataUrl(district.id, name, baseUrl), signal);
-  const [green, grey, grid, parkChecks] = await Promise.all([
+  const [green, grey, grid, parkChecks, gaSites, greenGroups] = await Promise.all([
     district.data.greenZones ? load('green-zones').then((json) => normalizeCollection(json, 'green')) : null,
     load('abandoned').then((json) => normalizeCollection(json, 'grey')),
     district.data.grid ? load('grid').then((json) => normalizeGrid(json, district.frame.id)) : null,
     district.data.parkChecks ? load('park-checks').then(normalizeChecks) : null,
+    district.data.gaSites ? load('ga-sites').then(normalizeGaSites) : null,
+    district.data.greenGroups ? load('green-groups').then(normalizeGreenGroups) : null,
   ]);
-  return { green, grey, grid, parkChecks };
+  return { green, grey, grid, parkChecks, gaSites, greenGroups };
 }

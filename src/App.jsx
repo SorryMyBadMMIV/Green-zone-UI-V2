@@ -12,13 +12,13 @@ import { loadParks } from './lib/parks.js';
 const ALL_PARKS = loadParks(parkList);
 const focusOf = (district) => district.boundaries.features.find((f) => f.properties.role === 'focus').geometry;
 // Hiding a layer clears a selection of that kind.
-const LAYER_KIND = { green: 'green', abandoned: 'grey' };
+const LAYER_KIND = { green: 'green', abandoned: 'grey', gaSites: 'ga', greenGroups: 'group' };
 const isPhone = () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && !window.matchMedia('(min-width: 1024px)').matches;
 
 export default function App() {
   const [districtId, setDistrictId] = useState(DEFAULT_DISTRICT_ID);
   const district = getDistrict(districtId);
-  const { status, error, green, grey, grid, parkChecks, version, reload } = useMapData(district);
+  const { status, error, green, grey, grid, parkChecks, gaSites, greenGroups, version, reload } = useMapData(district);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // The frontend decides every cell (green / grey / water) from its NDVI value.
   const classified = useMemo(() => (grid ? classifyGrid(grid) : null), [grid]);
@@ -27,7 +27,7 @@ export default function App() {
     () => (grey ? analyseDistrict({ focus: focusOf(district), parks: ALL_PARKS, plots: grey }) : null),
     [district, grey],
   );
-  const [selected, setSelected] = useState(null); // { kind: 'green' | 'grey' | 'park', id } or null
+  const [selected, setSelected] = useState(null); // { kind: 'green' | 'grey' | 'park' | 'ga' | 'group', id } or null
   const [options, setOptions] = useState(DEFAULT_OPTIONS);
   // On phones the options panel starts folded so it doesn't cover the small map.
   const [optionsCollapsed, setOptionsCollapsed] = useState(isPhone);
@@ -63,6 +63,8 @@ export default function App() {
         district={district}
         analysis={analysis}
         parkChecks={parkChecks}
+        gaSites={gaSites}
+        greenGroups={greenGroups}
         collapsed={sidebarCollapsed}
         onCollapsedChange={setSidebarCollapsed}
         status={status}
@@ -86,6 +88,8 @@ export default function App() {
           onOptionsCollapsedChange={setOptionsCollapsed}
           green={green}
           grey={grey}
+          gaSites={gaSites}
+          greenGroups={greenGroups}
           classified={classified}
           analysis={analysis}
           version={version}

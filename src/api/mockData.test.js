@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizeCollection, normalizeGrid } from './data.js';
+import { normalizeCollection, normalizeGaSites, normalizeGreenGroups, normalizeGrid } from './data.js';
 import { pointInPolygon, polygonAreaM2, polygonLabelPoint } from '../lib/geo.js';
 
 // Plain path maths on purpose: Vite rewrites `new URL(`…${x}`, import.meta.url)` into an asset lookup.
@@ -88,8 +88,15 @@ describe('Suan Luang data', () => {
     expect(boundaries.metadata.viewBounds).toHaveLength(4);
   });
 
+  it('places the 7 km × 6 km Theosmain image where the GA sites fit their green patches (about 1 m)', () => {
+    expect(frame.extent.west).toBeCloseTo(672420, -1);
+    expect(frame.extent.north).toBeCloseTo(1521080, -1);
+    expect(frame.extent.east - frame.extent.west).toBe(7000);
+    expect(frame.extent.north - frame.extent.south).toBe(6000);
+  });
+
   it('places the Theosmain frame around On Nut / Srinakarin', () => {
-    expect(Math.min(...lats)).toBeGreaterThan(13.7);
+    expect(Math.min(...lats)).toBeGreaterThan(13.69);
     expect(Math.max(...lats)).toBeLessThan(13.76);
     expect(Math.min(...lngs)).toBeGreaterThan(100.58);
     expect(Math.max(...lngs)).toBeLessThan(100.68);
@@ -114,15 +121,45 @@ describe('Suan Luang data', () => {
     }
   });
 
-  it('has the 10 parks the backend checked against the image', () => {
+  it('has the 11 parks the backend checked against the image', () => {
     const checks = load('mock/suan-luang/park-checks.geojson').features;
-    expect(checks).toHaveLength(10);
+    expect(checks).toHaveLength(11);
     for (const { properties } of checks) {
       expect(['green_detected', 'no_green_detected', 'outside_image']).toContain(properties.status);
     }
   });
 
   it('keeps the backend summary', () => {
-    expect(load('mock/suan-luang/summary.json').green_area_m2).toBe(1753864.25);
+    expect(load('mock/suan-luang/summary.json').green_area_m2).toBe(2248297.5);
+  });
+
+  it("has the backend's 85 GA park sites, ranked inside their 1 km squares, all on the image", () => {
+    const raw = load('mock/suan-luang/ga-sites.geojson');
+    const { features } = normalizeGaSites(raw);
+    expect(features).toHaveLength(85);
+    expect(new Set(features.map((f) => f.properties.id)).size).toBe(85);
+    for (const { geometry, properties } of features) {
+      expect(properties.zone).toMatch(/^r\d+_c\d+$/);
+      expect(properties.rank).toBeGreaterThanOrEqual(1);
+      expect(properties.areaM2).toBeGreaterThan(0);
+      expect(properties.distNearestOfficialM).toBeGreaterThanOrEqual(0);
+      const [lng, lat] = geometry.coordinates;
+      expect(lat).toBeGreaterThanOrEqual(Math.min(...lats));
+      expect(lat).toBeLessThanOrEqual(Math.max(...lats));
+      expect(lng).toBeGreaterThanOrEqual(Math.min(...lngs));
+      expect(lng).toBeLessThanOrEqual(Math.max(...lngs));
+    }
+  });
+
+  it("has the backend's 271 green-group circles: 170 groups and 101 isolated", () => {
+    const { features } = normalizeGreenGroups(load('mock/suan-luang/green-groups.geojson'));
+    expect(features).toHaveLength(271);
+    expect(features.filter((f) => f.properties.kind === 'group')).toHaveLength(170);
+    expect(features.filter((f) => f.properties.kind === 'isolated')).toHaveLength(101);
+    expect(new Set(features.map((f) => f.properties.id)).size).toBe(271);
+    for (const { properties } of features) {
+      expect(properties.radiusM).toBeGreaterThan(0);
+      expect(properties.greenM2InGroup).toBeGreaterThan(0);
+    }
   });
 });

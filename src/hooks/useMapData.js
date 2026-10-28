@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { fetchDistrictData } from '../api/data.js';
 
-const EMPTY = { status: 'loading', green: null, grey: null, grid: null, parkChecks: null, error: null };
+const EMPTY = { status: 'loading', green: null, grey: null, grid: null, parkChecks: null, gaSites: null, greenGroups: null, error: null };
 
 /**
- * Loads what the map needs for a district: abandoned plots, and green zones, NDVI grid and park checks where the
- * district has them. Returns { status: 'loading' | 'ready' | 'error', green, grey, grid, parkChecks, error, version,
- * reload }. When the district changes, the old district's data is dropped at once (status 'loading').
+ * Loads what the map needs for a district: abandoned plots, and green zones, NDVI grid, park checks, GA sites and green
+ * groups where the district has them. Returns { status: 'loading' | 'ready' | 'error', green, grey, grid, parkChecks,
+ * gaSites, greenGroups, error, version, reload }. When the district changes, the old district's data is dropped at once (status 'loading').
  * `version` goes up by one after every successful load (the map uses it to redraw).
  */
 export default function useMapData(district) {

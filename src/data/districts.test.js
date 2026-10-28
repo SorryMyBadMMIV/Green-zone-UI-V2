@@ -19,11 +19,12 @@ describe('districts', () => {
 
   it('uses the backend green image in Suan Luang and the NDVI grid in Don Mueang', () => {
     const suanLuang = getDistrict('suan-luang');
-    expect(suanLuang.data).toEqual({ grid: false, greenZones: false, parkChecks: true });
+    expect(suanLuang.data).toEqual({ grid: false, greenZones: false, parkChecks: true, gaSites: true, greenGroups: true });
     expect(suanLuang.images.green).toMatch(/green\.png/);
-    expect(suanLuang.greenSummary).toEqual({ greenM2: 1753864.25, validM2: 32000000, patches: 1148 });
+    expect(suanLuang.greenSummary).toEqual({ greenM2: 2248297.5, validM2: 42000000, patches: 1554 });
+    expect(suanLuang.frame.note).toBe('Position fitted from 83 of 85 backend GA sites (median error 0.4 m).');
     const donMueang = getDistrict('don-mueang');
-    expect(donMueang.data).toEqual({ grid: true, greenZones: true, parkChecks: false });
+    expect(donMueang.data).toEqual({ grid: true, greenZones: true, parkChecks: false, gaSites: false, greenGroups: false });
     expect(donMueang.frame.id).toBe('gisda_03');
     expect(donMueang.otherFrames.map((f) => f.id)).toEqual(['gisda_01', 'gisda_02']);
   });

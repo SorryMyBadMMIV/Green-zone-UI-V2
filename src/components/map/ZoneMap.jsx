@@ -3,17 +3,21 @@ import { GeoJSON, MapContainer, Marker, Pane, TileLayer, useMapEvents } from 're
 import L from 'leaflet';
 import { LoaderCircle, Maximize, Minus, Plus } from 'lucide-react';
 import { BASEMAPS, MAP_DEFAULTS } from '../../config.js';
+import { sitesPerSquare } from '../../lib/backendResults.js';
 import { COLORS } from '../../lib/constants.js';
 import { formatKm2 } from '../../lib/format.js';
 import { frameCenter, frameRing, maskPolygon, polygonAreaM2 } from '../../lib/geo.js';
 import ClassifiedGridLayer from './ClassifiedGridLayer.jsx';
 import FrameImageLayer from './FrameImageLayer.jsx';
+import GaSiteMarkers from './GaSiteMarkers.jsx';
+import GreenGroupLayer from './GreenGroupLayer.jsx';
 import MapLegend from './MapLegend.jsx';
 import MapOptions from './MapOptions.jsx';
 import ParkLayers from './ParkLayers.jsx';
 import PlotInfoBox from './PlotInfoBox.jsx';
 import PolicyLayer from './PolicyLayer.jsx';
 import RecommendMarkers from './RecommendMarkers.jsx';
+import { GaSiteInfoBox, GreenGroupInfoBox } from './SiteInfoBoxes.jsx';
 
 const FIT_OPTIONS = { padding: [24, 24] };
 
@@ -213,7 +217,8 @@ function MapButtons({ map, onReset }) {
 
 /**
  * The interactive map of one district: satellite or street base map, the grey cover outside the district, the heat
- * map, the green layer (NDVI grid or backend green image), zones, controls and legend.
+ * map, the green layer (NDVI grid or backend green image), zones, the backend's GA sites and green groups, controls and
+ * legend.
  */
 export default function ZoneMap({
   district,
@@ -225,6 +230,8 @@ export default function ZoneMap({
   onOptionsCollapsedChange,
   green,
   grey,
+  gaSites,
+  greenGroups,
   classified,
   analysis,
   version,
@@ -240,6 +247,9 @@ export default function ZoneMap({
   const basemap = BASEMAPS[options.basemap] ?? BASEMAPS.satellite;
   const selectedPlot = selected?.kind === 'grey' ? grey?.features.find((f) => f.properties.id === selected.id)?.properties : null;
   const selectedAnalysis = selectedPlot ? analysis?.plots[selectedPlot.id] : null;
+  const sitesInSquare = useMemo(() => sitesPerSquare(gaSites), [gaSites]);
+  const selectedSite = selected?.kind === 'ga' ? gaSites?.features.find((f) => f.properties.id === selected.id)?.properties : null;
+  const selectedGroup = selected?.kind === 'group' ? greenGroups?.features.find((f) => f.properties.id === selected.id)?.properties : null;
 
   return (
     <div className="relative h-[55vh] min-h-80 lg:h-dvh">
@@ -285,7 +295,11 @@ export default function ZoneMap({
           {options.policy && analysis && <PolicyLayer key={district.id} focus={view.focus.geometry} parks={analysis.parks} pane="policy" />}
         </Pane>
         {analysis && <ParkLayers parks={analysis.parks} options={options} selected={selected} onSelect={onSelect} />}
+        <Pane name="groups" style={{ zIndex: 395 }}>
+          {options.greenGroups && greenGroups && <GreenGroupLayer greenGroups={greenGroups} selected={selected} onSelect={onSelect} />}
+        </Pane>
         {options.recommend && options.abandoned && analysis && <RecommendMarkers analysis={analysis} onSelect={onSelect} />}
+        {options.gaSites && gaSites && <GaSiteMarkers gaSites={gaSites} sitesInSquare={sitesInSquare} selected={selected} onSelect={onSelect} />}
       </MapContainer>
       <MapButtons map={map} onReset={resetView} />
       <MapOptions
@@ -297,8 +311,10 @@ export default function ZoneMap({
         collapsed={optionsCollapsed}
         onCollapsedChange={onOptionsCollapsedChange}
       />
-      <MapLegend />
+      <MapLegend district={district} />
       {selectedPlot && selectedAnalysis && <PlotInfoBox plot={selectedPlot} analysis={selectedAnalysis} onClose={onClear} />}
+      {selectedSite && <GaSiteInfoBox site={selectedSite} sitesInSquare={sitesInSquare[selectedSite.zone]} onClose={onClear} />}
+      {selectedGroup && <GreenGroupInfoBox group={selectedGroup} onClose={onClear} />}
       {loading && (
         <p className="pointer-events-none absolute left-1/2 top-16 z-[1000] flex -translate-x-1/2 items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm text-neutral-800 shadow-md lg:top-3">
           <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />

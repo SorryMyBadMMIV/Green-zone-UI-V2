@@ -50,6 +50,20 @@ describe('MapOptions', () => {
     expect(screen.getByLabelText('Green/grey grid')).toBeTruthy();
   });
 
+  it('shows GA park sites at start and green groups off at start, in Suan Luang', () => {
+    const { onOptionChange } = renderOptions();
+    expect(screen.getByLabelText('GA park sites').checked).toBe(true);
+    expect(screen.getByLabelText('Green groups').checked).toBe(false);
+    fireEvent.click(screen.getByLabelText('Green groups'));
+    expect(onOptionChange).toHaveBeenCalledWith('greenGroups', true);
+  });
+
+  it('hides the GA park site and green group switches in Don Mueang, which has neither', () => {
+    renderOptions({ district: getDistrict('don-mueang') });
+    expect(screen.queryByLabelText('GA park sites')).toBeNull();
+    expect(screen.queryByLabelText('Green groups')).toBeNull();
+  });
+
   it('switches the base map to the street map', () => {
     const { onOptionChange } = renderOptions();
     fireEvent.change(screen.getByLabelText('Base map'), { target: { value: 'street' } });

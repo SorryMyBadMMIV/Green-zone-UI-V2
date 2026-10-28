@@ -1,21 +1,23 @@
 import { ChevronsLeft, ChevronsRight, Leaf } from 'lucide-react';
 import { USING_MOCK_DATA } from '../../config.js';
 import { COLORS } from '../../lib/constants.js';
+import { sitesPerSquare } from '../../lib/backendResults.js';
 import ErrorCard from '../ui/ErrorCard.jsx';
 import LoadingCards from '../ui/LoadingCards.jsx';
+import GaSitePanel from './GaSitePanel.jsx';
+import GreenGroupPanel from './GreenGroupPanel.jsx';
 import GreenZonePanel from './GreenZonePanel.jsx';
 import GreyZonePanel from './GreyZonePanel.jsx';
 import OverviewPanel from './OverviewPanel.jsx';
 import ParkPanel from './ParkPanel.jsx';
 
-/** Properties of the selected zone, or null if nothing is selected or it is not in the data. */
-function findZone(selected, green, grey) {
-  if (!selected || selected.kind === 'park') return null;
-  const collection = selected.kind === 'green' ? green : grey;
+/** Properties of the selected zone, site or group, or null if nothing is selected or it is not in the data. */
+function findSelected(selected, collections) {
+  const collection = selected ? collections[selected.kind] : null;
   return collection?.features.find((f) => f.properties.id === selected.id)?.properties ?? null;
 }
 
-function SidebarBody({ district, analysis, parkChecks, status, error, green, grey, classified, grid, selected, onClear, onRetry }) {
+function SidebarBody({ district, analysis, parkChecks, gaSites, greenGroups, status, error, green, grey, classified, grid, selected, onClear, onRetry }) {
   if (status === 'loading') return <LoadingCards />;
   if (status === 'error') return <ErrorCard error={error} onRetry={onRetry} />;
   if (selected?.kind === 'park') {
@@ -25,12 +27,16 @@ function SidebarBody({ district, analysis, parkChecks, status, error, green, gre
       return <ParkPanel park={park} check={check} onClose={onClear} />;
     }
   }
-  const zone = findZone(selected, green, grey);
+  const zone = findSelected(selected, { green, grey, ga: gaSites, group: greenGroups });
   if (zone && selected.kind === 'green') return <GreenZonePanel zone={zone} onClose={onClear} />;
   if (zone && selected.kind === 'grey') {
     return <GreyZonePanel zone={zone} totalSites={grey.features.length} analysis={analysis?.plots[zone.id] ?? null} onClose={onClear} />;
   }
-  return <OverviewPanel district={district} classified={classified} grid={grid} grey={grey} analysis={analysis} />;
+  if (zone && selected.kind === 'ga') return <GaSitePanel site={zone} sitesInSquare={sitesPerSquare(gaSites)[zone.zone]} onClose={onClear} />;
+  if (zone && selected.kind === 'group') return <GreenGroupPanel group={zone} onClose={onClear} />;
+  return (
+    <OverviewPanel district={district} classified={classified} grid={grid} grey={grey} analysis={analysis} gaSites={gaSites} greenGroups={greenGroups} />
+  );
 }
 
 const toggleClass =

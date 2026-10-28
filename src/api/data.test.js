@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { districtDataUrl, fetchDistrictData, normalizeCollection, normalizeGrid } from './data.js';
+import { districtDataUrl, fetchDistrictData, normalizeCollection, normalizeGaSites, normalizeGreenGroups, normalizeGrid } from './data.js';
 
 const square = [[[100.5, 13.7], [100.51, 13.7], [100.51, 13.71], [100.5, 13.71], [100.5, 13.7]]];
 const feature = (properties) => ({ type: 'Feature', geometry: { type: 'Polygon', coordinates: square }, properties });
@@ -89,16 +89,87 @@ describe('normalizeGrid', () => {
   });
 });
 
+const point = (coordinates, properties) => ({ type: 'Feature', geometry: { type: 'Point', coordinates }, properties });
+// One GA site and one green group, in the backend's own format (ga_parks.geojson, green_groups.geojson).
+const gaSites = collection(
+  point([100.5965, 13.7467], { zone: 'r0_c0', rank: 1, area_m2: 25991.5, x_m: 672614.66, y_m: 1520289.4, dist_nearest_official_m: 2287.7, zone_fitness: 1.4472, zone_k_max: 2 }),
+);
+const greenGroups = collection(
+  point([100.6569, 13.7026], { cluster_id: 1, kind: 'group', radius_m: 381, patches_in_group: 34, patches_in_circle: 39, green_m2_in_group: 46489.8, green_m2_in_circle: 53648.8, noise_suppressed: false, role: 'center' }),
+  feature({ cluster_id: 1, kind: 'group', radius_m: 381, role: 'group_circle' }),
+);
+
+describe('normalizeGaSites', () => {
+  it("reads the backend's GA sites and gives each an id from its 1 km square and rank", () => {
+    expect(normalizeGaSites(gaSites).features[0].properties).toEqual({
+      id: 'r0_c0-1',
+      zone: 'r0_c0',
+      rank: 1,
+      areaM2: 25991.5,
+      distNearestOfficialM: 2287.7,
+      zoneFitness: 1.4472,
+      zoneKMax: 2,
+    });
+  });
+
+  it('skips sites without a point, a square or a rank, and rejects data that is not a FeatureCollection', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const result = normalizeGaSites(collection(feature({ zone: 'r0_c0', rank: 2 }), point([100.6, 13.7], { rank: 3 })));
+    expect(result.features).toHaveLength(0);
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(() => normalizeGaSites({ type: 'Feature' })).toThrow(/GA park site data is not a GeoJSON FeatureCollection/);
+  });
+});
+
+describe('normalizeGreenGroups', () => {
+  it('keeps the circle centres (the map draws the circles itself) and drops the circle polygons', () => {
+    const { features } = normalizeGreenGroups(greenGroups);
+    expect(features).toHaveLength(1);
+    expect(features[0].geometry.coordinates).toEqual([100.6569, 13.7026]);
+    expect(features[0].properties).toEqual({
+      id: '1',
+      kind: 'group',
+      radiusM: 381,
+      patchesInGroup: 34,
+      patchesInCircle: 39,
+      greenM2InGroup: 46489.8,
+      greenM2InCircle: 53648.8,
+    });
+  });
+
+  it('skips noise the backend suppressed and centres without a radius', () => {
+    const { features } = normalizeGreenGroups(
+      collection(
+        point([100.6, 13.7], { cluster_id: 2, kind: 'isolated', radius_m: 50, noise_suppressed: true }),
+        point([100.6, 13.7], { cluster_id: 3, kind: 'isolated', radius_m: null }),
+      ),
+    );
+    expect(features).toHaveLength(0);
+  });
+});
+
 describe('fetchDistrictData', () => {
-  const suanLuang = { id: 'suan-luang', frame: { id: 'theosmain' }, data: { grid: false, greenZones: false, parkChecks: true } };
+  const suanLuang = { id: 'suan-luang', frame: { id: 'theosmain' }, data: { grid: false, greenZones: false, parkChecks: true, gaSites: true, greenGroups: true } };
   const donMueang = { id: 'don-mueang', frame: { id: 'gisda_03' }, data: { grid: true, greenZones: true, parkChecks: false } };
   const checks = { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [100.65, 13.71] }, properties: { name: 'P', areaM2: 400, sizeClass: 'S', status: 'green_detected', greenM2: 894.5 } }] };
 
-  it('loads only the abandoned plots and park checks for Suan Luang', async () => {
-    const fetchMock = vi.fn(async (url) => ({ ok: true, status: 200, json: async () => (url.endsWith('park-checks') ? checks : collection(feature({ id: 'SL-001', landCover: 'overgrown', isExample: true }))) }));
+  it('loads the abandoned plots, park checks, GA sites and green groups for Suan Luang', async () => {
+    const answers = { 'park-checks': checks, 'ga-sites': gaSites, 'green-groups': greenGroups };
+    const fetchMock = vi.fn(async (url) => ({
+      ok: true,
+      status: 200,
+      json: async () => answers[url.split('/').pop()] ?? collection(feature({ id: 'SL-001', landCover: 'overgrown', isExample: true })),
+    }));
     vi.stubGlobal('fetch', fetchMock);
     const result = await fetchDistrictData(suanLuang, { baseUrl: 'http://api' });
-    expect(fetchMock.mock.calls.map(([url]) => url).sort()).toEqual(['http://api/districts/suan-luang/abandoned', 'http://api/districts/suan-luang/park-checks']);
+    expect(fetchMock.mock.calls.map(([url]) => url).sort()).toEqual([
+      'http://api/districts/suan-luang/abandoned',
+      'http://api/districts/suan-luang/ga-sites',
+      'http://api/districts/suan-luang/green-groups',
+      'http://api/districts/suan-luang/park-checks',
+    ]);
+    expect(result.gaSites.features[0].properties.id).toBe('r0_c0-1');
+    expect(result.greenGroups.features[0].properties.kind).toBe('group');
     expect(result.green).toBeNull();
     expect(result.grid).toBeNull();
     expect(result.grey.features[0].properties).toMatchObject({ id: 'SL-001', landCover: 'overgrown', isExample: true });
@@ -113,11 +184,15 @@ describe('fetchDistrictData', () => {
     expect(result.grid).toMatchObject({ frameId: 'gisda_03', ndvi: [[0.2, 0.6]] });
     expect(result.green.features).toHaveLength(1);
     expect(result.parkChecks).toBeNull();
+    expect(result.gaSites).toBeNull();
+    expect(result.greenGroups).toBeNull();
   });
 
   it('loads the bundled example files without a backend', async () => {
     const fetchMock = respondWith(collection(feature({ id: 'SL-001' })));
-    vi.stubGlobal('fetch', vi.fn(async (url) => (url.includes('park-checks') ? { ok: true, status: 200, json: async () => checks } : fetchMock(url))));
+    const files = { 'park-checks': checks, 'ga-sites': gaSites, 'green-groups': greenGroups };
+    const named = (url) => Object.keys(files).find((name) => url.includes(name));
+    vi.stubGlobal('fetch', vi.fn(async (url) => (named(url) ? { ok: true, status: 200, json: async () => files[named(url)] } : fetchMock(url))));
     await fetchDistrictData(suanLuang, { baseUrl: '' });
     expect(fetchMock).toHaveBeenCalledWith(districtDataUrl('suan-luang', 'abandoned', ''));
   });

@@ -10,6 +10,8 @@ export const DEFAULT_OPTIONS = {
   XL: false,
   policy: false,
   recommend: true,
+  gaSites: true,
+  greenGroups: false,
   heatmap: false,
   green: true,
   abandoned: true,
@@ -42,8 +44,8 @@ function Check({ name, label, swatch, options, onOptionChange }) {
 const headingClass = 'mb-0.5 mt-2 text-xs font-semibold uppercase tracking-wide text-neutral-500';
 
 /**
- * The floating "Map options" panel at the top right of the map: district, park circles by size, policy and
- * recommend, layers and base map. The – button folds it into a small pill.
+ * The floating "Map options" panel at the top right of the map: district, park circles by size, policy, recommend and
+ * the backend's GA park sites and green groups (where the district has them), layers and base map. The – button folds it into a small pill.
  */
 export default function MapOptions({ district, districts, onDistrictChange, options, onOptionChange, collapsed, onCollapsedChange }) {
   const id = useId();
@@ -101,6 +103,8 @@ export default function MapOptions({ district, districts, onDistrictChange, opti
       <p className={headingClass}>Show</p>
       {check('policy', 'Policy · 400 m', null)}
       {check('recommend', 'Recommend', COLORS.recommendStar)}
+      {district.data.gaSites && check('gaSites', 'GA park sites', COLORS.gaSite)}
+      {district.data.greenGroups && check('greenGroups', 'Green groups', COLORS.greenGroup)}
 
       <p className={headingClass}>Layers</p>
       {check('heatmap', 'Heat map', 'linear-gradient(90deg, #00b441, #ffe128, #eb2d23)')}

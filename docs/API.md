@@ -8,8 +8,10 @@ This is the contract between the frontend and the backend. The app shows two dis
 | GET | `{VITE_API_URL}/districts/{id}/green-zones` | Green zones (GeoJSON `FeatureCollection`) | don-mueang |
 | GET | `{VITE_API_URL}/districts/{id}/grid` | NDVI values of the district's frame grid (JSON) | don-mueang |
 | GET | `{VITE_API_URL}/districts/{id}/park-checks` | Registered parks checked against the image (GeoJSON points) | suan-luang |
+| GET | `{VITE_API_URL}/districts/{id}/ga-sites` | GA-ranked candidate park sites: the backend's `ga_parks.geojson`, as is | suan-luang |
+| GET | `{VITE_API_URL}/districts/{id}/green-groups` | Green groups: the backend's `green_groups.geojson`, as is | suan-luang |
 
-Which district has which piece is set in `src/data/districts.js` (`data: { grid, greenZones, parkChecks }`).
+Which district has which piece is set in `src/data/districts.js` (`data: { grid, greenZones, parkChecks, gaSites, greenGroups }`).
 
 - Set `VITE_API_URL` in `.env` (copy `.env.example`), for example `VITE_API_URL=http://localhost:8000/api`. Restart `npm run dev` after changing it.
 - When `VITE_API_URL` is empty, the app reads the same structures from `src/mock/<id>/` (built into the app). **Those files are working examples of everything below.**
@@ -23,8 +25,8 @@ The heat map and the Suan Luang green layer are PNG images drawn over the distri
 | File | Made with |
 |---|---|
 | `src/mock/suan-luang/heatmap.png` | backend `make_heatmap(mask, pixel_m, radius_m=150, style="proximity")` on the Theosmain green mask |
-| `src/mock/suan-luang/green.png` | the backend green mask (`green_mask_round1`), green where the mask is 1 |
-| `src/mock/suan-luang/frame.json` | the image's four corners (from the `.tif` bounds when it arrives) |
+| `src/mock/suan-luang/green.png` | the backend green mask (`round1/green_preview.png`, 3.5 m per pixel), green where the mask is 1 |
+| `src/mock/suan-luang/frame.json` | the image's extent (UTM 47N) and four corners, fitted from the GA sites to about 1 m |
 | `src/mock/don-mueang/heatmap.png` | the same heat map from the Don Mueang example NDVI grid |
 
 `docs/mock-data/make-heatmaps.py` makes them from the backend folder. When the backend serves them, add `heatmap` / `green` image URLs and corners to the district config.
@@ -89,6 +91,33 @@ The backend's `park_mark.py` output, reduced to points:
 | `status` | `green_detected`, `no_green_detected` or `outside_image` |
 | `greenM2` | Green found by the satellite near the point |
 
+## GA park site feature (Suan Luang)
+
+The backend's `ga_parks/ga_parks.geojson`, sent unchanged: one `Point` per candidate site.
+
+| Field | Meaning |
+|---|---|
+| `zone` | The 1 km square, `r{row}_c{col}` from the image's top-left corner (required) |
+| `rank` | Rank of the site inside its square, 1 = best (required) |
+| `area_m2` | Area of the green patch |
+| `dist_nearest_official_m` | Distance to the nearest registered park |
+| `zone_fitness`, `zone_k_max` | The square's GA score and the most parks allowed in it |
+
+The frontend names each site `{zone}-{rank}`, counts the sites per square, and ignores `x_m` / `y_m`. These are candidates, not verified public land, and the app says so.
+
+## Green group feature (Suan Luang)
+
+The backend's `green_groups/green_groups.geojson`, sent unchanged. The frontend keeps the `Point` features (the circle centres) and draws each circle from its centre and `radius_m`; the `Polygon` circles can be left out to save space.
+
+| Field | Meaning |
+|---|---|
+| `cluster_id` | Unique id (required) |
+| `kind` | `group`, or `isolated` (drawn dashed) |
+| `radius_m` | Circle radius (required, more than 0) |
+| `patches_in_group`, `green_m2_in_group` | The group's own patches and green |
+| `patches_in_circle`, `green_m2_in_circle` | Everything inside the circle, neighbours included |
+| `noise_suppressed` | `true` leaves the group out |
+
 ## What the frontend computes (don't send these)
 
 - **Park size class and reach,** from `src/data/parks.json` (BMA list):
@@ -101,9 +130,10 @@ The backend's `park_mark.py` output, reduced to points:
 - **Level:** very good from 80, good from 60, fair from 40, poor below.
 - **Recommendation:** outside every 400 m ring and a score of 60 or more.
 - **Cell classes and areas in km²** (Don Mueang grid), m² per person and status, priority tiers and "rank N of M".
+- **GA sites per 1 km square** and the **share of the green inside a group circle** (green in the groups ÷ the image's green).
 
 ## How the frontend treats your data
 
-- A plot or zone without `properties.id` or without polygon geometry is skipped with a console warning.
+- A plot or zone without `properties.id` or without polygon geometry is skipped with a console warning. So is a GA site without a point, `zone` or `rank`.
 - A number that is missing or not finite shows as "—". The cards still render.
 - Extra fields are ignored, so it is safe to send more.

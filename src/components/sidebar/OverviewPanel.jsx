@@ -4,6 +4,7 @@ import PriorityBar from '../charts/PriorityBar.jsx';
 import Card from '../ui/Card.jsx';
 import InfoList from '../ui/InfoList.jsx';
 import StatPair from '../ui/StatPair.jsx';
+import { GaSitesCard, GreenGroupsCard } from './cards/BackendCards.jsx';
 import { DistrictFactsCard, ParksBySizeCard, PolicyCoverageCard, RecommendedCard } from './cards/DistrictCards.jsx';
 import { COLORS, GREEN_NDVI } from '../../lib/constants.js';
 import { formatKm2, formatLatLng, formatNumber, formatPercent } from '../../lib/format.js';
@@ -92,7 +93,7 @@ function BackendGreenCard({ frame, summary }) {
 }
 
 /** Sidebar content before anything is selected: the district's green, area, facts, parks, policy and recommendations. */
-export default function OverviewPanel({ district, classified, grid, grey, analysis }) {
+export default function OverviewPanel({ district, classified, grid, grey, analysis, gaSites, greenGroups }) {
   const { frame } = district;
   const focus = district.boundaries.features.find((f) => f.properties.role === 'focus');
   const districtM2 = polygonAreaM2(focus.geometry);
@@ -108,7 +109,7 @@ export default function OverviewPanel({ district, classified, grid, grey, analys
     <div className="space-y-3">
       <header>
         <h2 className="text-xl font-semibold text-ink">{district.nameEn} overview</h2>
-        <p className="text-sm text-ink-3">Click a park, a red plot or a ★ on the map to see its details.</p>
+        <p className="text-sm text-ink-3">{`Click a park, a red plot${gaSites ? ', a ★ or a ◆' : ' or a ★'} on the map to see its details.`}</p>
       </header>
       {district.greenSummary ? <BackendGreenCard frame={frame} summary={district.greenSummary} /> : <GridGreenCard frame={frame} classified={classified} />}
       <Card title="Area">
@@ -132,6 +133,8 @@ export default function OverviewPanel({ district, classified, grid, grey, analys
           />
         </>
       )}
+      {gaSites && <GaSitesCard gaSites={gaSites} />}
+      {greenGroups && <GreenGroupsCard greenGroups={greenGroups} greenM2={district.greenSummary?.greenM2} />}
       {fitness.length > 0 && (
         <Card title="Candidate sites by priority (fitness)">
           <PriorityBar counts={countByTier(fitness)} />

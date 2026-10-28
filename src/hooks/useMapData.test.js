@@ -9,7 +9,14 @@ const collection = (id) => ({ type: 'FeatureCollection', features: [{ type: 'Fea
 const grid = { frameId: 'gisda_03', rows: 1, cols: 1, cellSizeM: 100, ndvi: [[0.4]] };
 const suanLuang = { id: 'suan-luang' };
 const donMueang = { id: 'don-mueang' };
-const dataFor = (district) => ({ green: null, grey: collection(`${district.id}-plot`), grid: district === donMueang ? grid : null, parkChecks: null });
+const dataFor = (district) => ({
+  green: null,
+  grey: collection(`${district.id}-plot`),
+  grid: district === donMueang ? grid : null,
+  parkChecks: null,
+  gaSites: district === suanLuang ? collection('r0_c0-1') : null,
+  greenGroups: district === suanLuang ? collection('1') : null,
+});
 
 beforeEach(() => {
   vi.mocked(fetchDistrictData).mockReset();
@@ -38,11 +45,14 @@ describe('useMapData', () => {
       .mockImplementationOnce((district) => new Promise((resolve) => (finishSecond = () => resolve(dataFor(district)))));
     const { result, rerender } = renderHook(({ district }) => useMapData(district), { initialProps: { district: suanLuang } });
     await waitFor(() => expect(result.current.status).toBe('ready'));
+    expect(result.current.gaSites.features).toHaveLength(1);
 
     rerender({ district: donMueang });
     expect(result.current.status).toBe('loading');
     expect(result.current.grey).toBeNull();
     expect(result.current.grid).toBeNull();
+    expect(result.current.gaSites).toBeNull();
+    expect(result.current.greenGroups).toBeNull();
 
     await act(async () => finishSecond());
     await waitFor(() => expect(result.current.status).toBe('ready'));

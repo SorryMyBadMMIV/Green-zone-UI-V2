@@ -1,21 +1,19 @@
 // One-off: build the Suan Luang data for the Green Lantern frontend.
-// Usage (in the generator folder, see README.md): node make-suan-luang-data.mjs <project-root> <backend-root>
+// Usage (in the generator folder, see README.md): node make-suan-luang-data.mjs <project-root>
 // Needs suan-luang-district-raw.json (fetch-district.mjs --name "Suan Luang District, Bangkok")
 //   and suan-luang-frame-raw.json (fetch-frame-osm.mjs over the Theosmain frame + 0.005°)
 //   and <project-root>/src/mock/suan-luang/frame.json (make-heatmaps.py).
 // Writes:
 //   src/data/districts/suan-luang.json         Suan Luang + neighbouring districts (real OSM boundaries)
 //   src/mock/suan-luang/abandoned.geojson      EXAMPLE abandoned plots from OSM land use (not backend results)
-//   src/mock/suan-luang/park-checks.geojson    the backend's park-vs-satellite checks (copied)
-//   src/mock/suan-luang/summary.json           the backend's round-1 green summary (copied)
-// The backend folder is only read.
+// The backend's own results are copied by copy-backend-results.py.
 import fs from 'node:fs';
 import path from 'node:path';
 import osmtogeojson from 'osmtogeojson';
 import * as turf from '@turf/turf';
 
-const [root, backend] = process.argv.slice(2);
-if (!root || !backend) throw new Error('Usage: node make-suan-luang-data.mjs <project-root> <backend-root>');
+const [root] = process.argv.slice(2);
+if (!root) throw new Error('Usage: node make-suan-luang-data.mjs <project-root>');
 
 const UPDATED = '2026-10-26';
 const MIN_PLOT_M2 = 200;
@@ -147,23 +145,3 @@ writeJson('src/mock/suan-luang/abandoned.geojson', {
   features: plots,
 });
 
-// ---- Backend copies ----
-const marked = JSON.parse(fs.readFileSync(path.join(backend, 'Final_Results/Theosmain/parks/parks_marked.geojson'), 'utf8'));
-writeJson('src/mock/suan-luang/park-checks.geojson', {
-  type: 'FeatureCollection',
-  metadata: { note: 'Copied from backend v3 Final_Results/Theosmain/parks/parks_marked.geojson (points only).' },
-  features: marked.features
-    .filter((f) => f.properties.role === 'park')
-    .map((f) => ({
-      type: 'Feature',
-      geometry: f.geometry,
-      properties: {
-        name: f.properties.name,
-        areaM2: f.properties.area_m2,
-        sizeClass: f.properties.size_class,
-        status: f.properties.status,
-        greenM2: f.properties.green_m2_in_search_disc,
-      },
-    })),
-});
-writeJson('src/mock/suan-luang/summary.json', JSON.parse(fs.readFileSync(path.join(backend, 'Final_Results/Theosmain/round1/summary.json'), 'utf8')));

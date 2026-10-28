@@ -10,7 +10,7 @@ function Swatch({ color, outline = false, dashed = false, round = false }) {
 const Row = ({ children }) => <p className="flex items-center gap-2">{children}</p>;
 
 /** Floating legend (bottom-left of the map). Click "Legend" to fold or unfold it. */
-export default function MapLegend() {
+export default function MapLegend({ district }) {
   const ref = useRef(null);
 
   // Open on desktop, folded on phones (where it would cover a big part of the small map).
@@ -76,6 +76,21 @@ export default function MapLegend() {
         <Swatch color={COLORS.greenZoneStroke} outline />
         Green zone
       </Row>
+      {(district?.data.gaSites || district?.data.greenGroups) && <p className="mb-1 mt-2 font-semibold">Backend results</p>}
+      {district?.data.gaSites && (
+        <Row>
+          <span className="mx-0.5 size-2.5 shrink-0 rotate-45 border border-white shadow" style={{ background: COLORS.gaSite }} aria-hidden="true" />
+          GA park site (candidate)
+        </Row>
+      )}
+      {district?.data.greenGroups && (
+        <Row>
+          <Swatch color={COLORS.greenGroup} outline round />
+          Green group
+          <Swatch color={COLORS.greenGroup} outline dashed round />
+          Isolated green
+        </Row>
+      )}
       <p className="mb-1 mt-2 font-semibold">Heat map</p>
       <span className="block h-2 w-full rounded-sm" style={{ background: 'linear-gradient(90deg, #00b441, #ffe128, #eb2d23)' }} aria-hidden="true" />
       <p className="mt-0.5 flex justify-between gap-4">

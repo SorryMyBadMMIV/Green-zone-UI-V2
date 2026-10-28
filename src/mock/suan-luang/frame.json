@@ -2,28 +2,29 @@
   "id": "theosmain",
   "crs": "EPSG:32647",
   "extent": {
-    "west": 671762.0,
-    "east": 679762.0,
-    "south": 1516855.0,
-    "north": 1520855.0
+    "west": 672420.1,
+    "east": 679420.1,
+    "south": 1515080.0,
+    "north": 1521080.0
   },
   "corners": {
     "topLeft": [
-      13.7519079,
-      100.5886532
+      13.7539023,
+      100.5947522
     ],
     "topRight": [
-      13.7514201,
-      100.6626249
+      13.753475,
+      100.6594779
     ],
     "bottomLeft": [
-      13.7157531,
-      100.5884097
+      13.6996702,
+      100.5943858
     ],
     "bottomRight": [
-      13.7152666,
-      100.6623701
+      13.6992447,
+      100.6590966
     ]
   },
-  "note": "Extent measured from the backend parks_marked.png axes (about +-10 m) until the GeoTIFF arrives."
+  "run": "run_20261027_225232_154872_j6vk82m8",
+  "note": "Position fitted from 83 of 85 backend GA sites (median error 0.4 m)."
 }
